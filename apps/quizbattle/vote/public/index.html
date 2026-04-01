@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuizBattle - Vota</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --accent: #6c5ce7; --accent-hover: #5b4cdb; --bg: #0f0f13; --card: #1a1a24; --border: #2a2a3a; --text: #f0f0f5; --dim: #6b6b80; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 2rem 1rem; }
+    .logo { text-align: center; margin-bottom: 2rem; }
+    .logo h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.03em; }
+    .logo h1 span { color: var(--accent); }
+    .logo p { color: var(--dim); font-size: 0.9rem; margin-top: 0.3rem; }
+    .questions { max-width: 520px; width: 100%; display: flex; flex-direction: column; gap: 1.5rem; }
+    .q-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; }
+    .q-card h2 { font-size: 1.05rem; font-weight: 700; margin-bottom: 1rem; }
+    .options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    .opt-btn { background: var(--bg); border: 2px solid var(--border); border-radius: 14px; padding: 1rem; cursor: pointer; transition: all 0.15s; text-align: center; font-family: inherit; color: var(--text); }
+    .opt-btn:hover { border-color: var(--accent); background: rgba(108,92,231,0.08); }
+    .opt-btn.voted { border-color: var(--accent); background: rgba(108,92,231,0.15); pointer-events: none; }
+    .opt-btn .emoji { font-size: 1.5rem; display: block; margin-bottom: 0.3rem; }
+    .opt-btn .label { font-size: 0.85rem; font-weight: 700; }
+    .voted-msg { text-align: center; color: var(--accent); font-size: 0.82rem; font-weight: 600; margin-top: 0.75rem; }
+    .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--accent); color: white; border-radius: 100px; padding: 0.7rem 1.5rem; font-weight: 700; font-size: 0.88rem; opacity: 0; transition: all 0.3s cubic-bezier(0.16,1,0.3,1); z-index: 100; }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    footer { margin-top: auto; padding-top: 3rem; font-size: 0.75rem; color: var(--dim); }
+  </style>
+</head>
+<body>
+
+<div class="logo">
+  <h1>⚡ Quiz<span>Battle</span></h1>
+  <p>Vota y mira los resultados en tiempo real</p>
+</div>
+
+<div class="questions" id="questions"></div>
+<div class="toast" id="toast"></div>
+<footer>QuizBattle &mdash; Bootcamp DevOps 2026 &mdash; Carlos Palanca</footer>
+
+<script>
+const API = '';
+const voterId = 'voter-' + Math.random().toString(36).substr(2,8);
+const voted = new Set();
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+async function load() {
+  try {
+    const res = await fetch(`${API}/api/questions`);
+    const questions = await res.json();
+    document.getElementById('questions').innerHTML = questions.map(q => `
+      <div class="q-card" id="card-${q.id}">
+        <h2>${q.question}</h2>
+        <div class="options">
+          ${q.options.map((opt, i) => `
+            <button class="opt-btn" onclick="vote('${q.id}','${opt}',this)">
+              <span class="emoji">${q.emoji[i]}</span>
+              <span class="label">${opt}</span>
+            </button>
+          `).join('')}
+        </div>
+      </div>
+    `).join('');
+  } catch { document.getElementById('questions').innerHTML = '<p style="text-align:center;color:var(--dim)">Error cargando preguntas</p>'; }
+}
+
+async function vote(qid, option, btn) {
+  if (voted.has(qid)) return;
+  voted.add(qid);
+  btn.classList.add('voted');
+  const card = document.getElementById('card-' + qid);
+  card.querySelectorAll('.opt-btn').forEach(b => { if (b !== btn) b.style.opacity = '0.4'; b.style.pointerEvents = 'none'; });
+  const msg = document.createElement('div'); msg.className = 'voted-msg'; msg.textContent = '✓ Voto registrado';
+  card.appendChild(msg);
+  toast(`Votaste: ${option}`);
+  await fetch(`${API}/api/vote`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ question_id: qid, option, voter_id: voterId }) });
+}
+
+load();
+</script>
+</body>
+</html>

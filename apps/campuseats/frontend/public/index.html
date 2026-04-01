@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusEats</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍔</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fafafa;
+      --white: #ffffff;
+      --text: #1a1a2e;
+      --text-secondary: #6b7280;
+      --text-dim: #9ca3af;
+      --border: #f0f0f0;
+      --accent: #00b14f;
+      --accent-hover: #009a43;
+      --accent-soft: rgba(0, 177, 79, 0.08);
+      --orange: #ff6600;
+      --orange-soft: rgba(255, 102, 0, 0.08);
+      --radius: 16px;
+      --radius-sm: 12px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* NAV */
+    nav {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.25rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--accent);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .logo-text {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+
+    .logo-text span { color: var(--accent); }
+
+    .nav-search {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 0.5rem 1rem;
+      max-width: 360px;
+      flex: 1;
+      margin: 0 2rem;
+    }
+
+    .nav-search svg { flex-shrink: 0; color: var(--text-dim); }
+
+    .nav-search input {
+      border: none;
+      background: none;
+      outline: none;
+      font-family: inherit;
+      font-size: 0.9rem;
+      color: var(--text);
+      width: 100%;
+    }
+
+    .nav-search input::placeholder { color: var(--text-dim); }
+
+    .btn-add {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 100px;
+      padding: 0.55rem 1.25rem;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      white-space: nowrap;
+    }
+
+    .btn-add:hover { background: var(--accent-hover); transform: translateY(-1px); }
+
+    /* CATEGORIES */
+    .categories-bar {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .categories-bar::-webkit-scrollbar { display: none; }
+
+    .categories-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.25rem;
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .cat-btn {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.75rem 1rem;
+      border: none;
+      background: none;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      color: var(--text-secondary);
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+
+    .cat-btn:hover { color: var(--text); }
+    .cat-btn.active { color: var(--text); border-bottom-color: var(--text); }
+    .cat-btn .cat-emoji { font-size: 1.4rem; }
+    .cat-btn .cat-label { font-size: 0.72rem; font-weight: 600; white-space: nowrap; }
+
+    /* HERO */
+    .hero {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 0.5rem;
+    }
+
+    .hero h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text);
+    }
+
+    .hero p {
+      color: var(--text-secondary);
+      margin-top: 0.3rem;
+      font-size: 0.95rem;
+    }
+
+    /* GRID */
+    .grid-section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 3rem;
+    }
+
+    .dishes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+
+    /* DISH CARD */
+    .dish-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid var(--border);
+    }
+
+    .dish-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: transparent;
+    }
+
+    .dish-card .card-img {
+      position: relative;
+      height: 180px;
+      overflow: hidden;
+    }
+
+    .dish-card .card-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s;
+    }
+
+    .dish-card:hover .card-img img { transform: scale(1.05); }
+
+    .dish-card .card-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: var(--white);
+      border-radius: 100px;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text);
+      box-shadow: var(--shadow-sm);
+      text-transform: capitalize;
+    }
+
+    .dish-card .card-time {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      color: white;
+      border-radius: 100px;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .dish-card .card-fav {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--white);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.15s;
+      font-size: 16px;
+    }
+
+    .dish-card .card-fav:hover { transform: scale(1.15); }
+    .dish-card .card-fav.liked { color: #ef4444; }
+
+    .dish-card .card-body {
+      padding: 1rem;
+    }
+
+    .dish-card .card-body h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .dish-card .card-body .desc {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: 0.75rem;
+    }
+
+    .dish-card .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .dish-card .card-price {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    .dish-card .card-actions {
+      display: flex;
+      gap: 0.35rem;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .dish-card:hover .card-actions { opacity: 1; }
+
+    .card-actions button {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--white);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: all 0.15s;
+    }
+
+    .card-actions .btn-edit:hover { background: var(--accent-soft); border-color: var(--accent); }
+    .card-actions .btn-del:hover { background: #fef2f2; border-color: #fca5a5; }
+
+    .btn-order {
+      background: var(--text);
+      color: white;
+      border: none;
+      border-radius: 100px;
+      padding: 0.45rem 1rem;
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-order:hover { background: #000; }
+
+    /* EMPTY */
+    .empty-state {
+      text-align: center;
+      padding: 5rem 2rem;
+      grid-column: 1 / -1;
+    }
+
+    .empty-state .empty-emoji { font-size: 3rem; margin-bottom: 1rem; }
+    .empty-state h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .empty-state p { color: var(--text-secondary); font-size: 0.9rem; }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: var(--white);
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 480px;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: translateY(20px);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .modal-overlay.open .modal { transform: translateY(0); }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-header h2 { font-size: 1.1rem; font-weight: 800; }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: var(--bg);
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+    }
+
+    .modal-close:hover { background: #e5e5e5; }
+
+    .modal-body { padding: 1.5rem; }
+
+    .form-group { margin-bottom: 1rem; }
+    .form-group label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.35rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: var(--radius-sm);
+      padding: 0.7rem 0.9rem;
+      font-family: inherit;
+      font-size: 0.9rem;
+      color: var(--text);
+      transition: border-color 0.15s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .form-group textarea { resize: vertical; min-height: 80px; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+    .modal-footer {
+      padding: 1rem 1.5rem 1.5rem;
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .modal-footer .btn-cancel {
+      flex: 1;
+      padding: 0.7rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--white);
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .modal-footer .btn-cancel:hover { background: var(--bg); }
+
+    .modal-footer .btn-save {
+      flex: 1;
+      padding: 0.7rem;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .modal-footer .btn-save:hover { background: var(--accent-hover); }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--text);
+      color: white;
+      border-radius: 100px;
+      padding: 0.7rem 1.5rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      z-index: 2000;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      white-space: nowrap;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      border-top: 1px solid var(--border);
+      background: var(--white);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 640px) {
+      .nav-search { display: none; }
+      .hero h1 { font-size: 1.35rem; }
+      .dishes-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+      .dish-card .card-actions { opacity: 1; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="logo" href="#">
+      <div class="logo-icon">🍔</div>
+      <div class="logo-text">Campus<span>Eats</span></div>
+    </a>
+    <div class="nav-search">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="search" placeholder="Buscar platos...">
+    </div>
+    <button class="btn-add" onclick="openModal('create')">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Nuevo plato
+    </button>
+  </div>
+</nav>
+
+<div class="categories-bar">
+  <div class="categories-inner" id="categories">
+    <button class="cat-btn active" data-cat=""><span class="cat-emoji">🍽️</span><span class="cat-label">Todos</span></button>
+    <button class="cat-btn" data-cat="burgers"><span class="cat-emoji">🍔</span><span class="cat-label">Burgers</span></button>
+    <button class="cat-btn" data-cat="pizza"><span class="cat-emoji">🍕</span><span class="cat-label">Pizza</span></button>
+    <button class="cat-btn" data-cat="mexicano"><span class="cat-emoji">🌮</span><span class="cat-label">Mexicano</span></button>
+    <button class="cat-btn" data-cat="asiatico"><span class="cat-emoji">🍜</span><span class="cat-label">Asiatico</span></button>
+    <button class="cat-btn" data-cat="espanol"><span class="cat-emoji">🥘</span><span class="cat-label">Espanol</span></button>
+    <button class="cat-btn" data-cat="ensaladas"><span class="cat-emoji">🥗</span><span class="cat-label">Ensaladas</span></button>
+    <button class="cat-btn" data-cat="postres"><span class="cat-emoji">🍫</span><span class="cat-label">Postres</span></button>
+    <button class="cat-btn" data-cat="bebidas"><span class="cat-emoji">🧃</span><span class="cat-label">Bebidas</span></button>
+  </div>
+</div>
+
+<div class="hero">
+  <h1 id="hero-title">Todos los platos</h1>
+  <p id="hero-sub">Pide tu favorito y recogelo en el campus.</p>
+</div>
+
+<div class="grid-section">
+  <div class="dishes-grid" id="dishes"></div>
+</div>
+
+<footer>
+  CampusEats &mdash; Bootcamp DevOps 2026 &mdash; Carlos Palanca
+</footer>
+
+<!-- Create/Edit Modal -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-title">Nuevo plato</h2>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Nombre *</label>
+        <input type="text" id="f-name" placeholder="Nombre del plato">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Precio *</label>
+          <input type="number" id="f-price" placeholder="0.00" step="0.5" min="0">
+        </div>
+        <div class="form-group">
+          <label>Categoria</label>
+          <select id="f-category">
+            <option value="">Seleccionar...</option>
+            <option value="burgers">Burgers</option>
+            <option value="pizza">Pizza</option>
+            <option value="mexicano">Mexicano</option>
+            <option value="asiatico">Asiatico</option>
+            <option value="espanol">Espanol</option>
+            <option value="ensaladas">Ensaladas</option>
+            <option value="postres">Postres</option>
+            <option value="bebidas">Bebidas</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Descripcion</label>
+        <textarea id="f-desc" placeholder="Ingredientes, como se prepara..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Imagen (URL)</label>
+          <input type="text" id="f-image" placeholder="https://...">
+        </div>
+        <div class="form-group">
+          <label>Tiempo (min)</label>
+          <input type="number" id="f-time" placeholder="15" min="1">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-save" id="btn-save" onclick="saveDish()">Publicar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = window.location.hostname === 'localhost' ? 'http://localhost:3333' : '';
+let dishes = [];
+let activeCat = '';
+let editId = null;
+let favorites = new Set();
+
+const CAT_EMOJIS = {
+  burgers: '🍔', pizza: '🍕', mexicano: '🌮', asiatico: '🍜',
+  espanol: '🥘', ensaladas: '🥗', postres: '🍫', bebidas: '🧃'
+};
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+async function loadDishes() {
+  try {
+    const res = await fetch(`${API}/dishes`);
+    const json = await res.json();
+    dishes = json.data || [];
+    render();
+  } catch {
+    document.getElementById('dishes').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-emoji">⚠️</div>
+        <h3>API no disponible</h3>
+        <p>Verifica que el backend corre en :3333</p>
+      </div>`;
+  }
+}
+
+function render() {
+  const search = document.getElementById('search').value.toLowerCase();
+  const filtered = dishes.filter(d => {
+    const matchCat = !activeCat || d.category === activeCat;
+    const matchSearch = !search || d.name.toLowerCase().includes(search) || (d.description || '').toLowerCase().includes(search);
+    return matchCat && matchSearch;
+  });
+
+  const container = document.getElementById('dishes');
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-emoji">${activeCat ? (CAT_EMOJIS[activeCat] || '🍽️') : '🍽️'}</div>
+        <h3>${search || activeCat ? 'Sin resultados' : 'Menu vacio'}</h3>
+        <p>${search || activeCat ? 'Prueba con otra busqueda o categoria.' : 'Anade el primer plato al menu.'}</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(d => {
+    const isFav = favorites.has(d._id);
+    return `
+    <div class="dish-card" onclick="event.target.closest('button') || null">
+      <div class="card-img">
+        <img src="${esc(d.image) || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop'}" alt="${esc(d.name)}" loading="lazy">
+        ${d.category ? `<div class="card-badge">${CAT_EMOJIS[d.category] || ''} ${esc(d.category)}</div>` : ''}
+        ${d.prepTime ? `<div class="card-time">${d.prepTime} min</div>` : ''}
+        <button class="card-fav ${isFav ? 'liked' : ''}" onclick="toggleFav('${d._id}')">${isFav ? '❤️' : '🤍'}</button>
+      </div>
+      <div class="card-body">
+        <h3>${esc(d.name)}</h3>
+        ${d.description ? `<div class="desc">${esc(d.description)}</div>` : ''}
+        <div class="card-footer">
+          <span class="card-price">${d.price.toFixed(2)}\u20AC</span>
+          <div class="card-actions">
+            <button class="btn-edit" onclick="openModal('edit','${d._id}')" title="Editar">✏️</button>
+            <button class="btn-del" onclick="deleteDish('${d._id}')" title="Eliminar">🗑️</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleFav(id) {
+  if (favorites.has(id)) { favorites.delete(id); } else { favorites.add(id); }
+  render();
+}
+
+function openModal(mode, id) {
+  editId = mode === 'edit' ? id : null;
+  document.getElementById('modal-title').textContent = editId ? 'Editar plato' : 'Nuevo plato';
+  document.getElementById('btn-save').textContent = editId ? 'Guardar' : 'Publicar';
+
+  if (editId) {
+    const d = dishes.find(x => x._id === id);
+    if (d) {
+      document.getElementById('f-name').value = d.name;
+      document.getElementById('f-price').value = d.price;
+      document.getElementById('f-category').value = d.category || '';
+      document.getElementById('f-desc').value = d.description || '';
+      document.getElementById('f-image').value = d.image || '';
+      document.getElementById('f-time').value = d.prepTime || '';
+    }
+  } else {
+    ['f-name','f-price','f-category','f-desc','f-image','f-time'].forEach(id => document.getElementById(id).value = '');
+  }
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  editId = null;
+}
+
+async function saveDish() {
+  const name = document.getElementById('f-name').value.trim();
+  const price = parseFloat(document.getElementById('f-price').value);
+  if (!name || isNaN(price)) { toast('Nombre y precio son obligatorios'); return; }
+
+  const body = {
+    name,
+    price,
+    category: document.getElementById('f-category').value,
+    description: document.getElementById('f-desc').value.trim(),
+    image: document.getElementById('f-image').value.trim(),
+    prepTime: parseInt(document.getElementById('f-time').value) || 15,
+  };
+
+  try {
+    const url = editId ? `${API}/dishes/${editId}` : `${API}/dishes`;
+    const method = editId ? 'PUT' : 'POST';
+    const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const json = await res.json();
+    if (json.success) {
+      toast(editId ? 'Plato actualizado' : `${name} publicado`);
+      closeModal();
+      loadDishes();
+    } else {
+      toast(json.message || 'Error');
+    }
+  } catch { toast('Error de conexion'); }
+}
+
+async function deleteDish(id) {
+  try {
+    const res = await fetch(`${API}/dishes/${id}`, { method: 'DELETE' });
+    const json = await res.json();
+    if (json.success) { toast('Plato eliminado'); loadDishes(); }
+  } catch { toast('Error'); }
+}
+
+// Category filter
+document.getElementById('categories').addEventListener('click', e => {
+  const btn = e.target.closest('.cat-btn');
+  if (!btn) return;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeCat = btn.dataset.cat;
+  const label = btn.querySelector('.cat-label').textContent;
+  document.getElementById('hero-title').textContent = activeCat ? label : 'Todos los platos';
+  render();
+});
+
+// Search
+document.getElementById('search').addEventListener('input', render);
+
+// Close modal on overlay click
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+// Enter to save in modal
+document.querySelectorAll('#modal-overlay input').forEach(input => {
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') saveDish(); });
+});
+
+loadDishes();
+</script>
+
+</body>
+</html>

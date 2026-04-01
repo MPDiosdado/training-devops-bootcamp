@@ -1,0 +1,92 @@
+services:
+  vote:
+    build: ./vote
+    container_name: quizbattle-vote
+    restart: unless-stopped
+    ports:
+      - "5050:5000"
+    environment:
+      - REDIS_HOST=redis
+    networks:
+      - quizbattle
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  results:
+    build: ./results
+    container_name: quizbattle-results
+    restart: unless-stopped
+    ports:
+      - "5001:5001"
+    environment:
+      - DATABASE_URL=postgresql://postgres:quizbattle@db:5432/quizbattle
+      - PORT=5001
+    networks:
+      - quizbattle
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5001/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  worker:
+    build: ./worker
+    container_name: quizbattle-worker
+    restart: unless-stopped
+    environment:
+      - REDIS_HOST=redis
+      - DATABASE_URL=postgresql://postgres:quizbattle@db:5432/quizbattle
+    networks:
+      - quizbattle
+    depends_on:
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+
+  redis:
+    image: redis:7-alpine
+    container_name: quizbattle-redis
+    restart: unless-stopped
+    networks:
+      - quizbattle
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  db:
+    image: postgres:16-alpine
+    container_name: quizbattle-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=quizbattle
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=quizbattle
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - quizbattle
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  quizbattle:
+    driver: bridge
+
+volumes:
+  pgdata:
+    driver: local

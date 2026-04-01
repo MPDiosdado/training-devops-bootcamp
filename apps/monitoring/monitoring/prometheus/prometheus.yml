@@ -1,0 +1,20 @@
+# Prometheus - Configuracion para MyFitness
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'myfitness-backend'
+    static_configs:
+      - targets: ['myfitness-backend:3001']
+    metrics_path: /metrics
+    scrape_interval: 15s
+
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['myfitness-node-exporter:9100']
+    scrape_interval: 15s
